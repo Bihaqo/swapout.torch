@@ -23,6 +23,7 @@ function Swapout:updateOutput(input)
    if #self.p ~= #input then
       error(string.format('<Swapout> unexpected number of inputs %d, expected %d', #inputs, #self.p))
    end
+  --  TODO: (speedup) copy() the first input[1] instead of zero() and add().
    self.output:resizeAs(input[1]):zero()
    if self.train then
       for i = 1,#self.p do
