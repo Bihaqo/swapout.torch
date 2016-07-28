@@ -1,28 +1,30 @@
-local Swapout, Parent = torch.class('nn.Swapout', 'nn.Swapout')
+require 'nn'
+
+local Swapout, Parent = torch.class('nn.Swapout', 'nn.Module')
 
 function Swapout:__init(p)
    Parent.__init(self)
-   self.p = p or torch.Tensor([0.5, 0.5])
+   self.p = p or {0.5, 0.5}
    self.train = true
-   for i = 1,#self.p
+   for i = 1,#self.p do
       if self.p[i] >= 1 or self.p[i] < 0 then
          error('<Swapout> illegal percentage, must be 0 <= p < 1')
       end
    end
    self.noise = {}
-   for i = 1,#self.p
+   for i = 1,#self.p do
       self.noise[i] = torch.Tensor()
    end
    self.gradInput = {}
 end
 
 function Swapout:updateOutput(input)
-   if #self.p != #inputs then
+   if #self.p ~= #inputs then
       error(string.format('<Swapout> unexpected number of inputs %d, expected %d', #inputs, #self.p))
    end
    self.output:resizeAs(input[1])
    if self.train then
-      for i = 1,#self.p
+      for i = 1,#self.p do
          if self.p[i] > 0 then
             self.noise[i]:bernoulli(1-self.p[i])
             self.output:add(copy(torch.cmul(input[i], self.noise[i])))
@@ -31,27 +33,27 @@ function Swapout:updateOutput(input)
          end
       end
    else
-      for i = 1,#self.p
+      for i = 1,#self.p do
          self.output:add(input[i])
          if self.p[i] > 0 then
             self.output:mul(1-self.p[i])
          end
       end
-   end1
+   end
    return self.output
 end
 
 function Swapout:updateGradInput(input, gradOutput)
    self.gradInput:resizeAs(gradOutput):copy(gradOutput)
    if self.train then
-      for i = 1,#self.p
+      for i = 1,#self.p do
          self.gradInput[i]:resizeAs(input[i]):copy(gradOutput)
          if self.p[i] > 0 then
             self.gradInput[i]:cmul(self.noise[i])
          end
       end
    else
-      for i = 1,#self.p
+      for i = 1,#self.p do
          self.gradInput[i]:resizeAs(input[i]):copy(gradOutput)
          if self.p[i] > 0 then
             self.gradInput[i]:mul(1-self.p[i])
@@ -72,9 +74,10 @@ end
 
 
 function Swapout:clearState()
-   for i = 1,#self.p
+   for i = 1,#self.p do
       if self.noise[i] then
          self.noise[i]:set()
      end
+   end
    return Parent.clearState(self)
 end
