@@ -23,7 +23,7 @@ function Swapout:updateOutput(input)
    if #self.p ~= #input then
       error(string.format('<Swapout> unexpected number of inputs %d, expected %d', #inputs, #self.p))
    end
-   self.output:resizeAs(input[1])
+   self.output:resizeAs(input[1]):zero()
    if self.train then
       for i = 1,#self.p do
          if self.p[i] > 0 then
@@ -82,5 +82,6 @@ function Swapout:clearState()
          self.noise[i]:set()
      end
    end
+  --  TODO: clean self.gradInput?
    return Parent.clearState(self)
 end
