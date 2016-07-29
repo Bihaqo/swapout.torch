@@ -37,9 +37,10 @@ function Swapout:updateOutput(input)
       end
    else
       for i = 1,#self.p do
-         self.output:add(input[i])
          if self.p[i] > 0 then
-            self.output:mul(1-self.p[i])
+            self.output:add(1-self.p[i], input[i])
+         else
+            self.output:add(input[i])
          end
       end
    end
